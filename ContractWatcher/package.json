@@ -14,7 +14,8 @@
     "@tsconfig/recommended": "^1.0.1",
     "@types/node": "^17.0.14",
     "@types/yargs": "^17.0.8",
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+    "why-is-node-running": "^2.2.1"
   },
   "scripts": {
     "start": "nodemon -w src --ext ts --exec ts-node src/index.ts"

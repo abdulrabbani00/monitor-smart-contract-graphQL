@@ -6,11 +6,19 @@ import { ObjectType, Field, ID } from "type-graphql";
 export class Transfer extends BaseEntity {
   @Field(() => ID)
   @PrimaryGeneratedColumn()
-  transactionHash: string;
+  Id: string;
 
   @Field(() => String)
   @Column()
+  transactionHash: string;
+
+  @Field(() => Number)
+  @Column()
   blockNumber: number;
+
+  @Field(() => String)
+  @Column()
+  contractAddress: string;
 
   @Field(() => String)
   @Column()

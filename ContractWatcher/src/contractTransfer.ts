@@ -1,6 +1,6 @@
 import { Contract } from "web3-eth-contract"
 import Web3 from 'web3';
-import { EventSubscriber } from "typeorm";
+import { TransferEvents } from "./addEventsToDatabase"
 
 const client = require('node-rest-client-promise').Client();
 
@@ -37,7 +37,7 @@ async function getContractAbi(contractAddress: string, etherScanApiKey: string) 
  * @param {string} infuraKey - Your infuraKey
  * @returns {Contract} - The contract object
  */
-async function createContract(contractAddress: string, etherScanApiKey: string, infuraKey: string) {
+async function createContract(contractAddress: string, etherScanApiKey: string, infuraKey: string): Promise<Contract> {
     const options = {
         // Enable auto reconnection
         reconnect: {
@@ -61,9 +61,9 @@ async function createContract(contractAddress: string, etherScanApiKey: string, 
  * @param event - The returned events
  * @returns {object}  - The desired values
  */
-function filterEvents(event: any) {
-    const picked = (({ transactionHash, blockNumber, returnValues: { from, to, tokenId } }) => (
-        { transactionHash, blockNumber, tokenId, "fromAddres": from, "toAddress": to }
+function filterEvents(event: any): object {
+    const picked = (({ address, transactionHash, blockNumber, returnValues: { from, to, tokenId } }) => (
+        { transactionHash, "contractAddress": address, "blockNumber": parseInt(blockNumber), "tokenId": parseInt(tokenId), "fromAddress": from, "toAddress": to }
     ))(event);
     return picked
 }
@@ -93,6 +93,33 @@ function queryNewEvents(contract: Contract, allEvents: Array<object>) {
  * @param {number | string} endBlock - The block to end at, either provide a number or "latest"
  * @returns
  */
+function insertPastEventsToDB(contract: Contract, startBlock: number | string,
+    endBlock: number | string) {
+    contract.getPastEvents("Transfer",
+        {
+            fromBlock: startBlock,
+            toBlock: endBlock
+        }).then(events => {
+            try {
+                // Add events to the DB directly
+                events.forEach((event) => {
+                    let TransferEvent = new TransferEvents()
+                    TransferEvent.InsertTransferEvents(filterEvents(event))
+                    // Add flag for checking for duplicates before inserts.
+                })
+
+            } catch (e) {
+                if (e instanceof TypeError) {
+                    console.error(e)
+                }
+            }
+        })
+        .catch((err) => {
+            console.error(err)
+            console.error("fromBlock:", startBlock)
+            console.error("endBlock:", endBlock)
+        });
+}
 function queryPastEvents(contract: Contract, startBlock: number | string,
     endBlock: number | string) {
     let pastEvents: Array<object> = []
@@ -102,6 +129,7 @@ function queryPastEvents(contract: Contract, startBlock: number | string,
             toBlock: endBlock
         }).then(events => {
             try {
+                // Add events to the DB directly
                 events.forEach((event) => pastEvents.push(filterEvents(event)))
                 return pastEvents
 
@@ -175,39 +203,23 @@ async function callQueryPastEvents(contract: Contract, startBlock: number | stri
         newStartBlock = startBlock
     }
     let blockArray = createBlockArray(newStartBlock, newEndBlock, delimeter)
-
-
-    // Debug this bullshit here
     console.log("Block Array:", blockArray)
-    // blockArray.forEach(async (blockObject) => {
-    //     console.log(`Querying Past events from block ${blockObject["startBlock"]} to ${blockObject["endBlock"]} `);
-    //     //queryPastEvents(contract, blockObject["startBlock"], blockObject["endBlock"])
-    //     //    .then(result => {
-    //     //        pastEvents = pastEvents.concat(result);
-    //     //        console.log("Inside pastEvents Len:", pastEvents.length);
-    //     //    });
-    //     let events = await queryPastEvents(contract, blockObject["startBlock"], blockObject["endBlock"])
-    //     pastEvents = pastEvents.concat(events);
-    //     console.log("Inside pastEvents Len:", pastEvents.length);
-    //     console.log("Stupid")
-    //     // setTimeout(() => { }, 2000000);
-    // })
 
     for (let index = 0; index < blockArray.length; index++) {
         const element = blockArray[index];
         console.log(`Querying Past events from block ${element["startBlock"]} to ${element["endBlock"]} `);
         let events = await queryPastEvents(contract, element["startBlock"], element["endBlock"])
+        insertPastEventsToDB(contract, element["startBlock"], element["endBlock"])
         pastEvents = pastEvents.concat(events);
-        console.log("Inside pastEvents Len:", pastEvents.length);
     }
-
-    console.log("Outside pastEvents Len:", pastEvents.length)
     return pastEvents
 }
 
 /**
- * This function will listen to new transfer events, and get you
- * all the past events based on the provided parameters.
+ * This function will return a promise array<object> which will contain
+ * all the past events.
+ * This isn't pretty, but it works. My newbie experience with promises let me to
+ * have to utilize a few wrappers.
  * @param contractAddress - Contract address you want to watch.
  * @param etherScanApiKey - Etherscan API Key
  * @param infuraKey - Infura Key
@@ -217,29 +229,29 @@ async function callQueryPastEvents(contract: Contract, startBlock: number | stri
  * @param contractStartBlock - What is the contracts star block?
  * @param delimeter - If we are looking back, whats the maximum logs we should query for at a time (10000)
  */
-export function getDesiredEvents(contractAddress: string, etherScanApiKey: string,
-    infuraKey: string, includePastTransactions: boolean,
-    startBlock: number | string, endBlock: number | string, contractStartBlock: number, delimeter = 10000) {
-    let newEvents: Array<object> = [];
-    createContract(contractAddress, etherScanApiKey, infuraKey).then(contract => {
 
-        if (includePastTransactions) {
-            if (LATESTBLOCK !== undefined) {
-                console.log("Starting to look for past events")
-                //let pastEvents: Array<object> = callQueryPastEvents(contract, startBlock, endBlock, contractStartBlock, 10000)
-                callQueryPastEvents(contract, startBlock, endBlock, contractStartBlock, 10000).then(pastEvents => {
-                    console.log("Final", pastEvents)
-                    console.log("Done looking for past events")
-                })
-            } else {
-                console.log("Waiting for LATESTBLOCK to be set")
-                setTimeout(getDesiredEvents, 2500)
-            }
-        }
-    })
-    // queryNewEvents(contract, newEvents)
+export async function getCurrentEvents(contractAddress: string, etherScanApiKey: string,
+    infuraKey: string, container: Array<object>) {
+    let contract = await createContract(contractAddress, etherScanApiKey, infuraKey)
+    queryNewEvents(contract, container)
 }
+export async function getPastEvents(contractAddress: string, etherScanApiKey: string,
+    infuraKey: string, includePastTransactions: boolean,
+    startBlock: number | string, endBlock: number | string,
+    contractStartBlock: number, delimeter = 10000): Promise<object[]> {
+    let pastEvents: Array<object> = [];
+    let newEvents: Array<object> = [];
+    let contract = await createContract(contractAddress, etherScanApiKey, infuraKey)
 
-
-
-
+    if (includePastTransactions) {
+        if (LATESTBLOCK !== undefined) {
+            console.log("Starting to look for past events")
+            //let pastEvents: Array<object> = callQueryPastEvents(contract, startBlock, endBlock, contractStartBlock, 10000)
+            pastEvents = await callQueryPastEvents(contract, startBlock, endBlock, contractStartBlock, 10000)
+        } else {
+            console.log("Waiting for LATESTBLOCK to be set")
+            setTimeout(getPastEvents, 2500)
+        }
+    }
+    return pastEvents
+}

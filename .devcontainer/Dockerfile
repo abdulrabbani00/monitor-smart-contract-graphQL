@@ -12,9 +12,8 @@ FROM mcr.microsoft.com/vscode/devcontainers/javascript-node:0-${VARIANT}
 
 # [Optional] Uncomment if you want to install more global node modules
 RUN su node -c "npm install -g ts-node typescript node-rest-client-promise web3 \
-                '@types/node' yargs '@app-config/main@2' \
-                apollo-server type-graphql typeorm reflect-metadata "
+    '@types/node' yargs '@app-config/main@2' \
+    apollo-server type-graphql typeorm reflect-metadata pg"
 
-RUN su node -c "npm install pg --save"
 RUN su node -c "npm i --g --save-dev @types/yargs"
 RUN su node -c "npm -g install -D nodemon"

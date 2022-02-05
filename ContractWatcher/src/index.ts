@@ -1,26 +1,14 @@
 import { argv } from './configToArgs';
-import { getDesiredEvents } from './contractTransfer';
+import { getPastEvents, getCurrentEvents } from './contractTransfer';
 
-function main() {
-    // await loadConfig();
-    getDesiredEvents(argv.contractAddress, argv.etherScanApiKey, argv.infuraKey,
+async function main() {
+    // let currentEvents: Array<object> = []
+    // getCurrentEvents(argv.contractAddress, argv.etherScanApiKey, argv.infuraKey, currentEvents)
+    let pastEvents = await getPastEvents(argv.contractAddress, argv.etherScanApiKey, argv.infuraKey,
         argv.includePastTransactions, argv.startBlock, argv.endBlock, argv.contractStartBlock, argv.pastQueryDelimeter)
 
-    //(async () => {
-    //    await getDesiredEvents(argv.contractAddress, argv.etherScanApiKey, argv.infuraKey,
-    //        argv.includePastTransactions, argv.startBlock, argv.endBlock, argv.contractStartBlock, argv.pastQueryDelimeter)
-    //})()
-
+    console.log("Total past events:", pastEvents.length)
+    //console.log("Total new events:", currentEvents.length)
 }
 
-main();
-
-// (async () => {
-//     try {
-//         var output = await main();
-//         console.log(output);
-//     } catch (e) {
-//         console.error(e)
-//         // Deal with the fact the chain failed
-//     }
-// })();
+main()
