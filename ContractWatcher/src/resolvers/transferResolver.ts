@@ -13,12 +13,12 @@ export class TransferResolver {
     // Required by the project
     @Query(() => [Transfer])
     contracts(@Arg("contractAddress") contractAddress: string) {
-        return Transfer.find({ where: { contractAddress } });
+        return Transfer.find({ where: { contractAddress: contractAddress.toLowerCase() } });
     }
 
     @Query(() => [Transfer])
     allContractAddressAndTokenId(@Arg("contractAddress") contractAddress: string, @Arg("tokenId") tokenId: number) {
-        return Transfer.find({ where: { contractAddress, tokenId } });
+        return Transfer.find({ where: { contractAddress: contractAddress.toLowerCase(), tokenId } });
     }
 
     @Query(() => [Transfer])
@@ -29,7 +29,7 @@ export class TransferResolver {
     @Mutation(() => [Transfer])
     async markReadOrUnread(@Arg("contractAddress") contractAddress: string, @Arg("tokenId") tokenId: number,
         @Arg("isRead") isRead: boolean) {
-        const events = await Transfer.find({ where: { contractAddress, tokenId } });
+        const events = await Transfer.find({ where: { contractAddress: contractAddress.toLowerCase(), tokenId } });
         if (!events) throw new Error("Event not found");
         events.forEach(event => event.isRead = isRead)
         await Transfer.save(events);
@@ -39,10 +39,10 @@ export class TransferResolver {
     // Additional
     @Query(() => [Transfer])
     allFromAddressAndTokenId(@Arg("fromAddress") fromAddress: string, @Arg("tokenId") tokenId: number) {
-        return Transfer.find({ where: { fromAddress, tokenId } });
+        return Transfer.find({ where: { fromAddress: fromAddress.toLowerCase(), tokenId } });
     }
     @Query(() => [Transfer])
     allToAddressAndTokenId(@Arg("toAddress") toAddress: string, @Arg("tokenId") tokenId: number) {
-        return Transfer.find({ where: { toAddress, tokenId } });
+        return Transfer.find({ where: { toAddress: toAddress.toLowerCase(), tokenId } });
     }
 }

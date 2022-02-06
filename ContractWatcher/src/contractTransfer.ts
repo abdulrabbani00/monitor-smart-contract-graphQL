@@ -59,11 +59,16 @@ async function createContract(contractAddress: string, etherScanApiKey: string, 
  */
 function filterEvents(event: any): object {
     const picked = (({ address, transactionHash, blockNumber, returnValues: { from, to, tokenId } }) => (
-        { transactionHash, "contractAddress": address, "blockNumber": parseInt(blockNumber), "tokenId": parseInt(tokenId), "fromAddress": from, "toAddress": to }
+        {
+            transactionHash: transactionHash.toLowerCase(), "contractAddress": address.toLowerCase(),
+            "blockNumber": parseInt(blockNumber), "tokenId": parseInt(tokenId),
+            "fromAddress": from.toLowerCase(), "toAddress": to.toLowerCase()
+        }
     ))(event);
     return picked
 }
 
+let LASTTRANSCATION: string | undefined;
 /**
  * This function will query new events on the smart contract, and add them to the DB.
  * @param contract - Web3 contract object
@@ -71,26 +76,32 @@ function filterEvents(event: any): object {
  * @param checkDuplicates - A boolean highlighting if the duplicates should be checked for
  */
 function insertNewEventsToDb(contract: Contract, connectionName: string, checkDuplicates: boolean): void {
-    console.log("Starting to query new events")
     contract.events.Transfer()
         .on('data', async (event: any) => {
             if (LATESTBLOCK === undefined) {
                 LATESTBLOCK = event.blockNumber
             }
-            console.log("Found a new event")
-            let TransferEvent = new TransferEvents()
-            let doesExist: boolean | undefined
-            if (checkDuplicates) {
-                doesExist = await TransferEvent.DoesTransactionExist(event.transactionHash, connectionName)
-                console.log("checking for dups: ", doesExist)
-            }
-            if (doesExist === false || doesExist === undefined) {
-                TransferEvent.InsertTransferEvents(filterEvents(event), connectionName)
-            } else {
-                console.warn(`Skipping ${event.transactionHash} because its already in the DB`)
+
+            if (LASTTRANSCATION !== event.transactionHash) {
+                LASTTRANSCATION = event.transactionHash
+                console.log("Found a new event - transactionHash:", event.transactionHash)
+                let TransferEvent = new TransferEvents()
+                let doesExist: boolean | undefined
+                if (checkDuplicates) {
+                    doesExist = await TransferEvent.DoesTransactionExist(event.transactionHash, connectionName)
+                    console.log("Is this a duplicate: ", doesExist)
+                }
+                if (doesExist === false || doesExist === undefined) {
+                    TransferEvent.InsertTransferEvents(filterEvents(event), connectionName)
+                } else {
+                    console.warn(`Skipping ${event.transactionHash} because its already in the DB`)
+                }
             }
         })
         .on('error', console.error);
+    setTimeout(function () {
+        insertNewEventsToDb(contract, connectionName, checkDuplicates)
+    }, 500)
 }
 
 /**
@@ -198,7 +209,9 @@ function insertPastEventsToDb(contract: Contract, startBlock: number | string,
 export async function CaptureCurrentEvents(contractAddress: string, etherScanApiKey: string,
     infuraKey: string, connectionName: string, checkDuplicates: boolean) {
     let contract = await createContract(contractAddress, etherScanApiKey, infuraKey)
+    console.log("Starting to query new events")
     insertNewEventsToDb(contract, connectionName, checkDuplicates)
+
 }
 
 /**

@@ -14,6 +14,8 @@ import { createConnection } from "typeorm";
  *  and adding all events to the DB.
  */
 async function main() {
+    var isoDateString = new Date().toISOString();
+    console.log("Start time in UTC:", isoDateString);
     await startGraphQL(argv.graphqlPort)
 
     createConnection(argv.newEventConnectionName)
