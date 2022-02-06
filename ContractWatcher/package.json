@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "apollo-server": "^3.6.2",
+    "contractTransfer": "file:ContractWatcher/src/contractTransfer",
+    "node-rest-client-promise": "^3.1.1",
+    "pg": "^8.7.3",
+    "reflect-metadata": "^0.1.13",
+    "type-graphql": "^1.1.1",
+    "typeorm": "^0.2.41",
+    "web3": "^1.7.0",
+    "yargs": "^17.3.1"
+  },
+  "devDependencies": {
+    "@tsconfig/recommended": "^1.0.1",
+    "@types/node": "^17.0.14",
+    "@types/yargs": "^17.0.8",
+    "nodemon": "^2.0.15",
+    "why-is-node-running": "^2.2.1"
+  },
+  "scripts": {
+    "start": "nodemon -w src --ext ts --exec ts-node src/index.ts"
+  }
+}
