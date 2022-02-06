@@ -187,6 +187,23 @@ query Query {
 }
 ```
 
+## Query by `transactionHash`
+This query will filter for your desired transactionHash
+
+```
+query Query($transactionHash: String!) {
+  transactionHash(transactionHash: "0x81095d5ee8183eec43ff775c13968571e06d1323fe6d9a8bdbc8c57ecc398f40") {
+    contractAddress
+    transactionHash
+    blockNumber
+    fromAddress
+    toAddress
+    tokenId
+    isRead
+  }
+}
+```
+
 ## Query By Contract Address
 
 This query will filter for the specified contract address.

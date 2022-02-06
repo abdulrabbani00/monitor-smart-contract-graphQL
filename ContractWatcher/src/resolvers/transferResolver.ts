@@ -38,6 +38,10 @@ export class TransferResolver {
 
     // Additional
     @Query(() => [Transfer])
+    transactionHash(@Arg("transactionHash") transactionHash: string) {
+        return Transfer.find({ where: { transactionHash: transactionHash.toLowerCase() } });
+    }
+    @Query(() => [Transfer])
     allFromAddressAndTokenId(@Arg("fromAddress") fromAddress: string, @Arg("tokenId") tokenId: number) {
         return Transfer.find({ where: { fromAddress: fromAddress.toLowerCase(), tokenId } });
     }
