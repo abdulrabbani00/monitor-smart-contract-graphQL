@@ -86,7 +86,6 @@ function insertNewEventsToDb(contract: Contract, connectionName: string, checkDu
             }
             if (doesExist === false || doesExist === undefined) {
                 TransferEvent.InsertTransferEvents(filterEvents(event), connectionName)
-                console.log("Insert complete", filterEvents(event))
             } else {
                 console.warn(`Skipping ${event.transactionHash} because its already in the DB`)
             }
