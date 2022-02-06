@@ -1,3 +1,25 @@
+- [Overview](#overview)
+  * [Disclaimer](#disclaimer)
+- [Setup](#setup)
+  * [Database](#database)
+- [Application Overview](#application-overview)
+  * [Configuration File](#configuration-file)
+  * [Start the Application](#start-the-application)
+  * [Interact with GraphQL](#interact-with-graphql)
+- [Queries](#queries)
+  * [Query All Events](#query-all-events)
+  * [Query By Contract Address](#query-by-contract-address)
+  * [Query All Unread Events](#query-all-unread-events)
+  * [Query by Address and TokenId](#query-by-address-and-tokenid)
+    + [`ContractAddress` and `tokenId`](#-contractaddress--and--tokenid-)
+    + [`fromAddress` and `tokenId`](#-fromaddress--and--tokenid-)
+    + [`toAddress` and `tokenId`](#-toaddress--and--tokenid-)
+- [Mutation](#mutation)
+  * [Mark Events Read or Unread](#mark-events-read-or-unread)
+- [Improvements](#improvements)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
 
 # Overview
 
