@@ -1,6 +1,9 @@
 import { Entity, BaseEntity, PrimaryGeneratedColumn, Column } from "typeorm";
 import { ObjectType, Field, ID } from "type-graphql";
 
+/**
+ * Used to specify the schema of the DB.
+ */
 @Entity()
 @ObjectType()
 export class Transfer extends BaseEntity {

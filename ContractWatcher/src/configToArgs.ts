@@ -2,6 +2,12 @@ import * as yargs from 'yargs'
 import { Config } from './config';
 import * as config from './config.json'
 
+/**
+ * This will create an object with all the arguments
+ * You can set the arguments via the command line or the configuration file.
+ * The command line will override the configuration file!
+ *
+ */
 export let argv = yargs.options({
     infuraKey: {
         alias: 'i',
@@ -47,5 +53,25 @@ export let argv = yargs.options({
         alias: 'pq',
         default: config.contract.pastQueryDelimeter,
         description: 'When query past events, what should be the max delimeter for each call'
+    },
+    newEventConnectionName: {
+        alias: 'ec',
+        default: config.dbConnection.newEventsConnection,
+        description: 'The DB connection name for new events (check ormconfig.json)'
+    },
+    pastEventConnectionName: {
+        alias: 'pc',
+        default: config.dbConnection.pastEventsConnection,
+        description: 'The DB connection name for past events (check ormconfig.json)'
+    },
+    graphqlPort: {
+        alias: 'gp',
+        default: config.dbConnection.graphqlPort,
+        description: 'The port to use for graphQL'
+    },
+    checkDuplications: {
+        alias: 'cd',
+        default: config.dbConnection.checkDuplications,
+        description: 'Should we check for duplicate transactionHash before we return?'
     }
 }).parseSync();

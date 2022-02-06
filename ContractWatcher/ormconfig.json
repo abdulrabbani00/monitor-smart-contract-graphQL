@@ -1,12 +1,41 @@
-{
-    "type": "postgres",
-    "host": "localhost",
-    "port": 5432,
-    "username": "postgres",
-    "password": "postgres",
-    "database": "postgres",
-    "entities": [
-        "./src/models/*.ts"
-    ],
-    "synchronize": true
-}
+[
+    {
+        "name": "default",
+        "type": "postgres",
+        "host": "localhost",
+        "port": 5432,
+        "username": "postgres",
+        "password": "postgres",
+        "database": "postgres",
+        "entities": [
+            "./src/models/*.ts"
+        ],
+        "synchronize": true
+    },
+    {
+        "name": "newEventsConnection",
+        "type": "postgres",
+        "host": "localhost",
+        "port": 5432,
+        "username": "postgres",
+        "password": "postgres",
+        "database": "postgres",
+        "entities": [
+            "./src/models/*.ts"
+        ],
+        "synchronize": true
+    },
+    {
+        "name": "pastEventsConnection",
+        "type": "postgres",
+        "host": "localhost",
+        "port": 5432,
+        "username": "postgres",
+        "password": "postgres",
+        "database": "postgres",
+        "entities": [
+            "./src/models/*.ts"
+        ],
+        "synchronize": true
+    }
+]

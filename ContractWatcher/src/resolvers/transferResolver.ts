@@ -1,6 +1,9 @@
 import { Resolver, Query, Arg, Mutation } from "type-graphql";
 import { Transfer } from "../models/transfers";
 
+/**
+ * Define all user CURD commands for graphQL end users.
+ */
 @Resolver()
 export class TransferResolver {
     @Query(() => [Transfer])
@@ -29,7 +32,6 @@ export class TransferResolver {
         const events = await Transfer.find({ where: { contractAddress, tokenId } });
         if (!events) throw new Error("Event not found");
         events.forEach(event => event.isRead = isRead)
-        console.log(events)
         await Transfer.save(events);
         return events;
     }
@@ -43,11 +45,4 @@ export class TransferResolver {
     allToAddressAndTokenId(@Arg("toAddress") toAddress: string, @Arg("tokenId") tokenId: number) {
         return Transfer.find({ where: { toAddress, tokenId } });
     }
-
-    // @Mutation(() => Transfer)
-    // async addEvent(@Arg("data") data: ) {
-    //     const newEvent = Transfer.create(data);
-    //     await newEvent.save();
-    //     return newEvent;
-    // }
 }
