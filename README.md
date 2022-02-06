@@ -159,7 +159,7 @@ To start the application, do the following:
 2.  Start the application
 ```
 cd ContractWatcher/
-ts-node src/index.ts
+npm start
 ```
 
 ## Interact with GraphQL
@@ -304,11 +304,12 @@ mutation Mutation {
 ```
 
 # Improvements
-
 1.  **Improving Past Events -** Currently, the application _can_ view past events, but not all of them. The application runs into various bugs if the block range is too large. I haven’t had the time to debug them all. Therefore, it is recommended to stick to the current range. Feel free to use a larger block range, but keep in mind that the application might fail.
 
-2.  **Making Some Functions More Robust -** Primarily the database functions. They have been written to handle a specific read/write use case for the application. But with a simple refactor, users can specify the `where` and `insert` queries to make the functions more robust.
+2.  **Improving New Events -** The listener will close after each call, therefore I use the `setTimeout` function to repeatedly call the listener. This isn’t the best implementation, but it works for the current use case.
 
-3.  **Use Cloud Infrastructure -** Currently, the application only runs locally; using cloud infrastructure would make the application more robust.
+3.  **Making Some Functions More Robust -** Primarily the database functions. They have been written to handle a specific read/write use case for the application. But with a simple refactor, users can specify the `where` and `insert` queries to make the functions more robust.
 
-4.  **Add Testing -** Currently, the application is tested manually; adding some automated tests would be great.
+4.  **Use Cloud Infrastructure -** Currently, the application only runs locally; using cloud infrastructure would make the application more robust.
+
+5.  **Add Testing -** Currently, the application is tested manually; adding some automated tests would be great.
