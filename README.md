@@ -128,7 +128,17 @@ Most parameters are straightforward. The parameters users might want to update a
 
 To start the application, do the following:
 
-`1cd ContractWatcher/ 2ts-node src/index.ts`
+1.  Create the `config.json` file.
+
+    1.  Rename the `ContractWatcher/src`/`example.config.json` to `ContractWatcher/src/config.json`
+
+    2.  Update the `infuraKey` and `etherScanApiKey`
+
+2.  Start the application
+```
+cd ContractWatcher/
+ts-node src/index.ts
+```
 
 ## Interact with GraphQL
 
