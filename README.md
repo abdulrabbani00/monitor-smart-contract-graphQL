@@ -1,55 +1,44 @@
 - [Overview](#overview)
-  * [Disclaimer](#disclaimer)
+  - [Disclaimer](#disclaimer)
 - [Setup](#setup)
-  * [Database](#database)
+  - [Database](#database)
 - [Application Overview](#application-overview)
-  * [Configuration File](#configuration-file)
-  * [Start the Application](#start-the-application)
-  * [Interact with GraphQL](#interact-with-graphql)
+  - [Configuration File](#configuration-file)
+  - [Start the Application](#start-the-application)
+  - [Interact with GraphQL](#interact-with-graphql)
 - [Queries](#queries)
-  * [Query All Events](#query-all-events)
-  * [Query By Contract Address](#query-by-contract-address)
-  * [Query All Unread Events](#query-all-unread-events)
-  * [Query by Address and TokenId](#query-by-address-and-tokenid)
-    + [`ContractAddress` and `tokenId`](#-contractaddress--and--tokenid-)
-    + [`fromAddress` and `tokenId`](#-fromaddress--and--tokenid-)
-    + [`toAddress` and `tokenId`](#-toaddress--and--tokenid-)
+  - [Query All Events](#query-all-events)
+  - [Query By Contract Address](#query-by-contract-address)
+  - [Query All Unread Events](#query-all-unread-events)
+  - [Query by Address and TokenId](#query-by-address-and-tokenid)
+    - [`ContractAddress` and `tokenId`](#-contractaddress--and--tokenid-)
+    - [`fromAddress` and `tokenId`](#-fromaddress--and--tokenid-)
+    - [`toAddress` and `tokenId`](#-toaddress--and--tokenid-)
 - [Mutation](#mutation)
-  * [Mark Events Read or Unread](#mark-events-read-or-unread)
+  - [Mark Events Read or Unread](#mark-events-read-or-unread)
 - [Improvements](#improvements)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
-
 # Overview
 
-This project is written in Typescript to complete the coding challenge for N[FT.com.](http://nft.com/ "http://NFT.com")
+This project does the following:
 
-## Disclaimer
+- Actively monitors an Ethereum contract for any Transfer Events
 
-Over the last few weeks, I have been learning JS, understanding new topics, and writing more code in JS. Once I learned that the team uses Typescript, I thought it would be a great opportunity to do the following.
+- Captures past Transfer Events on the specified Ethereum contract.
 
-1.  Write JS code for a real project.
+  - You must specify the genesis, start, and end block (please look at the arguments section).
 
-2.  Learn how to write code in Typescript.
+- Put the data in a **Postgres** database.
 
-3.  Challenge myself to step out of my comfort zone.
+- Spins up an instance of **graphQL** to query the database.
 
-4.  Show my capabilities of writing code in a new language.
+## Disclaimers
 
+- This project was developed to work with [Bored Apes.](https://etherscan.io/address/0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d) New adoptions might require changes.
 
-I decided to complete this project in Typescript instead of a language I am comfortable in. I also want to indicate that I **spent more than three hours on this project.**
-
--   I was able to complete all of the requirements for this project under the three-hour mark.
-
-    -   Setting up GraphQL
-
-    -   Creating a schema
-
-    -   Adding Queries and Mutations.
-
--   But I spent quite a bit of time playing around with web3.js and Typescript. This is evident in the functionality to query for past events. Although this wasn’t a requirement of the project, I wanted to expose myself to new concepts further and add more tools to my belt.
-
+- There might be errors when increasing the block ranges.
 
 # Setup
 
@@ -64,7 +53,6 @@ This project is built inside a docker container. The recommended setup is as fol
 3.  Click `Rebuild Container`
 
     ![](images/setup-2.png)
-
 
 ## Database
 
@@ -89,8 +77,6 @@ At a high level, the application does the following:
 3.  The application will query past `Transfer` events on the contract address.
 
     1.  It will add all the past events to the DB.
-
-
 
 ## Configuration File
 
@@ -121,30 +107,29 @@ This application uses a configuration file. You can also pass in all the paramet
 
 Most parameters are straightforward. The parameters users might want to update are as follows:
 
--   `contractAddress` - Update the contract address to watch.
+- `contractAddress` - Update the contract address to watch.
 
--   `includePastTransactions`- Indicate if they want past transactions or not.
+- `includePastTransactions`- Indicate if they want past transactions or not.
 
--   `contractStartBlock` - What is the contract creation block number.
+- `contractStartBlock` - What is the contract creation block number.
 
-    -   This is used if the `startBlock` is set to `earliest`.
+  - This is used if the `startBlock` is set to `earliest`.
 
--   `startBlock` - The block to start at.
+- `startBlock` - The block to start at.
 
-    -   A number or `earliest` is acceptable.
+  - A number or `earliest` is acceptable.
 
--   `endBlock` - The block to end at.
+- `endBlock` - The block to end at.
 
-    -   A number or `latest` is acceptable.
+  - A number or `latest` is acceptable.
 
-    -   **If** `latest` is **used** - The application must process a “live” transfer to determine the `latest` block is. The application will get all the past transactions after the `latest` block number has been determined.
+  - **If** `latest` is **used** - The application must process a “live” transfer to determine the `latest` block is. The application will get all the past transactions after the `latest` block number has been determined.
 
--   `pastQueryDelimeter` - The application queries the past events in “chunks.” Infura has a query limit of `10000`, therefore it is recommended that users stick to this number or lower.
+- `pastQueryDelimeter` - The application queries the past events in “chunks.” Infura has a query limit of `10000`, therefore it is recommended that users stick to this number or lower.
 
--   `graphqlPort` - The port graphQL will expose.
+- `graphqlPort` - The port graphQL will expose.
 
--   `checkDuplications` - Should the application check for duplicate events based on the `transactionHash` before inserting them into the DB?
-
+- `checkDuplications` - Should the application check for duplicate events based on the `transactionHash` before inserting them into the DB?
 
 ## Start the Application
 
@@ -157,6 +142,7 @@ To start the application, do the following:
     2.  Update the `infuraKey` and `etherScanApiKey`
 
 2.  Start the application
+
 ```
 cd ContractWatcher/
 npm start
@@ -165,7 +151,6 @@ npm start
 ## Interact with GraphQL
 
 Open up the application on the port you configured. Currently, the application runs on `localhost`. Please view the upcoming sections to view the queries and mutations.
-
 
 # Queries
 
@@ -188,6 +173,7 @@ query Query {
 ```
 
 ## Query by `transactionHash`
+
 This query will filter for your desired transactionHash
 
 ```
@@ -300,10 +286,9 @@ query Query($allToAddressAndTokenIdTokenId2: Float!, $toAddress: String!) {
 
 The parameter to mark an event read or unread is `isRead - (Bool)`.
 
--   If `isRead == true`, the event has been read.
+- If `isRead == true`, the event has been read.
 
--   If `isRead == false`, the event has not been read.
-
+- If `isRead == false`, the event has not been read.
 
 You can mark `isRead` true or false. You must query events by the `contractAddress` and `tokenId`
 
@@ -321,6 +306,7 @@ mutation Mutation {
 ```
 
 # Improvements
+
 1.  **Improving Past Events -** Currently, the application _can_ view past events, but not all of them. The application runs into various bugs if the block range is too large. I haven’t had the time to debug them all. Therefore, it is recommended to stick to the current range. Feel free to use a larger block range, but keep in mind that the application might fail.
 
 2.  **Improving New Events -** The listener will close after each call, therefore I use the `setTimeout` function to repeatedly call the listener. This isn’t the best implementation, but it works for the current use case.
